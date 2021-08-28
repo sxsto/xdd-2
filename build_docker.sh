@@ -1,5 +1,5 @@
 #! /bin/bash
-version=$(git describe)
+version=v$(date "+%Y%m%d")
 #version=$QL_VERSION
 
 set -ex

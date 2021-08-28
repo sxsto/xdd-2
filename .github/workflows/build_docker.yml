@@ -1,8 +1,11 @@
 name: 编译打包Docker镜像
 on:
   push:
-    tags:
-      - '*'
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
   workflow_dispatch:
   watch:
     types: started
