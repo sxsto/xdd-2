@@ -1,0 +1,18 @@
+version: "3"
+services:
+  qinglong-xdd:
+    image: gcdd1993/qinglong-xdd:latest
+    container_name: qinglong-xdd
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "5700:5700"
+      - "8080:8080"
+    environment:
+      - ENABLE_HANGUP=true
+      - ENABLE_WEB_PANEL=true
+    volumes:
+      - ./config:/ql/config
+      - ./db:/ql/db
+      - ./xdd/conf:/ql/xdd/conf
+      - ./xdd/data:/ql/xdd/data

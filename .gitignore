@@ -31,3 +31,4 @@ scripts/node_modules
 task/*
 *.repo
 repos
+dist/

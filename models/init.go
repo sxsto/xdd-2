@@ -7,12 +7,7 @@ import (
 	"github.com/beego/beego/v2/core/logs"
 )
 
-var test2 = func(string) {
-
-}
-
 func init() {
-	logs.Info("杀死xdd后台进程")
 	killp()
 	for _, arg := range os.Args {
 		if arg == "-d" {
@@ -23,7 +18,7 @@ func init() {
 	logs.Info("当前%s", ExecPath)
 	initConfig()
 	initDB()
-	go initVersion()
+	//go initVersion()
 	go initUserAgent()
 	initContainer()
 	initHandle()

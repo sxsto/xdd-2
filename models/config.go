@@ -1,11 +1,9 @@
 package models
 
 import (
-	"io"
 	"io/ioutil"
 	"os"
 
-	"github.com/beego/beego/v2/client/httplib"
 	"github.com/beego/beego/v2/core/logs"
 	"gopkg.in/yaml.v2"
 )
@@ -44,7 +42,9 @@ type Yaml struct {
 var Balance = "balance"
 var Parallel = "parallel"
 var GhProxy = "https://ghproxy.com/"
-var Cdle = false
+
+// Debug 调试莫斯
+var Debug = false
 
 var Config Yaml
 
@@ -58,14 +58,14 @@ func initConfig() {
 		if err != nil {
 			logs.Warn(err)
 		}
-		s, _ := ioutil.ReadAll(f)
-		if len(s) == 0 {
-			logs.Info("下载配置%s", name)
-			r, err := httplib.Get(GhProxy + "https://raw.githubusercontent.com/cdle/xdd/main/conf/demo_" + name).Response()
-			if err == nil {
-				_, _ = io.Copy(f, r.Body)
-			}
-		}
+		//s, _ := ioutil.ReadAll(f)
+		//if len(s) == 0 {
+		//	logs.Info("下载配置%s", name)
+		//	r, err := httplib.Get(GhProxy + "https://raw.githubusercontent.com/cdle/xdd/main/conf/demo_" + name).Response()
+		//	if err == nil {
+		//		_, _ = io.Copy(f, r.Body)
+		//	}
+		//}
 		_ = f.Close()
 	}
 	content, err := ioutil.ReadFile(ExecPath + "/conf/config.yaml")
@@ -75,11 +75,11 @@ func initConfig() {
 	if yaml.Unmarshal(content, &Config) != nil {
 		logs.Warn("解析config.yaml出错: %v", err)
 	}
-	if ExecPath == "/Users/cdle/Desktop/xdd" || Config.NoAdmin {
-		Cdle = true
+	if Config.NoAdmin {
+		Debug = true
 	}
 	if Config.Master == "" {
-		Config.Master = "xxxx"
+		Config.Master = "xxxx" // 这是干啥呢？
 	}
 	if Config.Mode != Parallel {
 		Config.Mode = Balance
