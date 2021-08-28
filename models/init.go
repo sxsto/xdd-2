@@ -7,10 +7,6 @@ import (
 	"github.com/beego/beego/v2/core/logs"
 )
 
-var test2 = func(string) {
-
-}
-
 func init() {
 	killp()
 	for _, arg := range os.Args {

@@ -180,13 +180,12 @@ var codeSignals = []CodeSignal{
 		Command: []string{"升级", "更新", "update", "upgrade"},
 		Admin:   true,
 		Handle: func(sender *Sender) interface{} {
-			sender.Reply("小滴滴不支持此操作，请前往Dockerhub寻找合适的容器版本升级！")
 			//if err := Update(sender); err != nil {
 			//	return err.Error()
 			//}
 			//sender.Reply("小滴滴重启程序")
 			//Daemon()
-			return nil
+			return "小滴滴不支持此操作，交流群 " + TgGroup
 		},
 	},
 	{

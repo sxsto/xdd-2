@@ -41,6 +41,12 @@ import (
 	"golang.org/x/term"
 )
 
+const (
+	qqSession = "data/session.token"
+	qqDevice  = "data/device.json"
+	qqAddress = "data/address.txt"
+)
+
 var (
 	conf        *config.Config
 	isFastStart = false
@@ -171,11 +177,12 @@ func Main() {
 		for i := range arg {
 			switch arg[i] {
 			case "update":
-				if len(arg) > i+1 {
-					selfUpdate(arg[i+1])
-				} else {
-					selfUpdate("")
-				}
+				log.Info("不允许容器内更新")
+				//if len(arg) > i+1 {
+				//	selfUpdate(arg[i+1])
+				//} else {
+				//	selfUpdate("")
+				//}
 			case "key":
 				if len(arg) > i+1 {
 					byteKey = []byte(arg[i+1])
@@ -191,8 +198,8 @@ func Main() {
 	// 	time.Sleep(time.Second * 10)
 	// }
 
-	if (conf.Account.Uin == 0 || (conf.Account.Password == "" && !conf.Account.Encrypt)) && !global.PathExists("session.token") {
-		// log.Warn("账号密码未配置, 将使用二维码登录.")
+	if (conf.Account.Uin == 0 || (conf.Account.Password == "" && !conf.Account.Encrypt)) && !global.PathExists(qqSession) {
+		log.Warn("账号密码未配置, 将使用二维码登录.")
 		// if !isFastStart {
 		// 	log.Warn("将在 5秒 后继续.")
 		// 	time.Sleep(time.Second * 5)
@@ -206,14 +213,14 @@ func Main() {
 		// log.Debugf("开发交流群: 192548878")
 	}
 	// log.Info("用户交流群: 721829413")
-	if !global.PathExists("device.json") {
+	if !global.PathExists(qqDevice) {
 		log.Warn("虚拟设备信息不存在, 将自动生成随机设备.")
 		client.GenRandomDevice()
-		_ = os.WriteFile("device.json", client.SystemDeviceInfo.ToJson(), 0o644)
+		_ = os.WriteFile(qqDevice, client.SystemDeviceInfo.ToJson(), 0o644)
 		log.Info("已生成设备信息并保存到 device.json 文件.")
 	} else {
 		log.Info("将使用 device.json 内的设备信息运行Bot.")
-		if err := client.SystemDeviceInfo.ReadJson([]byte(global.ReadAllText("device.json"))); err != nil {
+		if err := client.SystemDeviceInfo.ReadJson([]byte(global.ReadAllText(qqDevice))); err != nil {
 			log.Fatalf("加载设备信息失败: %v", err)
 		}
 	}
@@ -295,10 +302,10 @@ func Main() {
 	isTokenLogin := false
 	saveToken := func() {
 		AccountToken = cli.GenToken()
-		_ = os.WriteFile("session.token", AccountToken, 0o644)
+		_ = os.WriteFile(qqSession, AccountToken, 0o644)
 	}
-	if global.PathExists("session.token") {
-		token, err := os.ReadFile("session.token")
+	if global.PathExists(qqSession) {
+		token, err := os.ReadFile(qqSession)
 		if err == nil {
 			if conf.Account.Uin != 0 {
 				r := binary.NewReader(token)
@@ -310,13 +317,13 @@ func Main() {
 					log.Warnf("请选择: (5秒后自动选1)")
 					text := readLineTimeout(time.Second*5, "1")
 					if text == "2" {
-						_ = os.Remove("session.token")
+						_ = os.Remove(qqSession)
 						os.Exit(0)
 					}
 				}
 			}
 			if err = cli.TokenLogin(token); err != nil {
-				_ = os.Remove("session.token")
+				_ = os.Remove(qqSession)
 				log.Warnf("恢复会话失败: %v , 尝试使用正常流程登录.", err)
 				time.Sleep(time.Second)
 				cli.Disconnect()
@@ -457,8 +464,6 @@ func Main() {
 		}
 	}
 	log.Info("资源初始化完成, 开始处理信息.")
-	log.Info("アトリは、高性能ですから!")
-
 	// <-global.SetupMainSignalHandler()
 }
 
@@ -670,9 +675,9 @@ func newClient() *client.QQClient {
 		log.Infof("收到服务器地址更新通知, 将在下一次重连时应用. ")
 		return true
 	})
-	if global.PathExists("address.txt") {
+	if global.PathExists(qqAddress) {
 		log.Infof("检测到 address.txt 文件. 将覆盖目标IP.")
-		addr := global.ReadAddrFile("address.txt")
+		addr := global.ReadAddrFile(qqAddress)
 		if len(addr) > 0 {
 			cli.SetCustomServer(addr)
 		}

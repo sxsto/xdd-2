@@ -3,6 +3,7 @@ package models
 var version = "2021082007"
 var describe = "日常更新"
 var AppName = "xdd"
+var TgGroup = "TG https://t.me/jd_wool"
 
 //var pname = regexp.MustCompile(`/([^/\s]+)`).FindStringSubmatch(os.Args[0])[1]
 var pname = ""

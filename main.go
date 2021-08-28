@@ -1,18 +1,15 @@
 package main
 
 import (
-	"io/ioutil"
-	"os"
-	"strings"
-	"time"
-
 	"github.com/beego/beego/v2/core/logs"
-	"github.com/beego/beego/v2/server/web/context"
-
 	"github.com/beego/beego/v2/server/web"
+	"github.com/beego/beego/v2/server/web/context"
 	"github.com/gcdd1993/xdd/controllers"
 	"github.com/gcdd1993/xdd/models"
 	"github.com/gcdd1993/xdd/qbot"
+	"io/ioutil"
+	"os"
+	"strings"
 )
 
 var theme = ""
@@ -61,12 +58,11 @@ func main() {
 	web.BConfig.WebConfig.Session.SessionOn = true
 	web.BConfig.WebConfig.Session.SessionGCMaxLifetime = 60 * 60 * 24
 	web.BConfig.WebConfig.Session.SessionName = models.AppName
-	go func() {
-		time.Sleep(time.Second * 4)
-		(&models.JdCookie{}).Push("小滴滴已启动")
-	}()
 	if models.Config.QQID != 0 || models.Config.QQGroupID != 0 {
 		go qbot.Main()
+	} else {
+		logs.Info("没有检测到QQ机器人配置，跳过QQ机器人启动")
 	}
 	web.Run()
+	(&models.JdCookie{}).Push("小滴滴已启动，交流群 " + models.TgGroup)
 }
