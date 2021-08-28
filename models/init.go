@@ -12,6 +12,7 @@ var test2 = func(string) {
 }
 
 func init() {
+	logs.Info("杀死xdd后台进程")
 	killp()
 	for _, arg := range os.Args {
 		if arg == "-d" {

@@ -51,9 +51,9 @@ func getVhelpRule(num int) string {
 				case "Cash":
 					codes[k] = append(codes[k], ck.Cash)
 				}
-				if len := len(codes[k]); len != 0 {
-					if codes[k][len-1] == "undefined" || codes[k][len-1] == "" || codes[k][len-1] == "--" {
-						codes[k] = codes[k][:len-1]
+				if length := len(codes[k]); length != 0 {
+					if codes[k][length-1] == "undefined" || codes[k][length-1] == "" || codes[k][length-1] == "--" {
+						codes[k] = codes[k][:length-1]
 					}
 				}
 			}
@@ -119,9 +119,9 @@ func getQLHelp(num int) map[string]string {
 				case "Cash":
 					codes[k] = append(codes[k], ck.Cash)
 				}
-				if len := len(codes[k]); len != 0 {
-					if codes[k][len-1] == "undefined" || codes[k][len-1] == "" || codes[k][len-1] == "--" {
-						codes[k] = codes[k][:len-1]
+				if length := len(codes[k]); length != 0 {
+					if codes[k][length-1] == "undefined" || codes[k][length-1] == "" || codes[k][length-1] == "--" {
+						codes[k] = codes[k][:length-1]
 					}
 				}
 			}
@@ -149,7 +149,7 @@ func getQLHelp(num int) map[string]string {
 		e[k] += strings.Join(vv, "@")
 	}
 	for k := range e {
-		n := []string{}
+		var n []string
 		for i := 0; i < num; i++ {
 			n = append(n, e[k])
 		}
@@ -228,9 +228,9 @@ func WriteHelpJS(acks []JdCookie) {
 			case "Cash":
 				codes[k] = append(codes[k], ck.Cash)
 			}
-			if len := len(codes[k]); len != 0 {
-				if codes[k][len-1] == "undefined" || codes[k][len-1] == "" {
-					codes[k] = codes[k][:len-1]
+			if length := len(codes[k]); length != 0 {
+				if codes[k][length-1] == "undefined" || codes[k][length-1] == "" {
+					codes[k] = codes[k][:length-1]
 				}
 			}
 		}
@@ -249,7 +249,7 @@ func WriteHelpJS(acks []JdCookie) {
 		"Cash":         {},
 	}
 	var f = func(ss []string, s string) string {
-		tss := []string{}
+		var tss []string
 		for _, v := range ss {
 			if v != s {
 				tss = append(tss, v)
@@ -284,47 +284,47 @@ func WriteHelpJS(acks []JdCookie) {
 			case "Cash":
 				e[k] = append(e[k], f(codes[k], ck.Cash))
 			}
-			if len := len(codes[k]); len != 0 {
-				if codes[k][len-1] == "undefined" || codes[k][len-1] == "" {
-					codes[k] = codes[k][:len-1]
+			if length := len(codes[k]); length != 0 {
+				if codes[k][length-1] == "undefined" || codes[k][length-1] == "" {
+					codes[k] = codes[k][:length-1]
 				}
 			}
 		}
 	}
 	tpl := `let codes = [%s];
-for (let i = 0; i < codes.length; i++) {
-	const index = (i + 1 === 1) ? '' : (i + 1);
-	exports['%s' + index] = codes[i];
-}`
+		for (let i = 0; i < codes.length; i++) {
+			const index = (i + 1 === 1) ? '' : (i + 1);
+			exports['%s' + index] = codes[i];
+		}`
 	for k, codes := range e {
 		switch k {
 		case "Fruit":
-			WriteToFile(
+			_ = WriteToFile(
 				ExecPath+"/scripts/jdFruitShareCodes.js",
 				fmt.Sprintf(tpl, strings.Join(codes, ","), "FruitShareCode"),
 			)
 		case "Pet":
-			WriteToFile(
+			_ = WriteToFile(
 				ExecPath+"/scripts/jdPetShareCodes.js",
 				fmt.Sprintf(tpl, strings.Join(codes, ","), "PetShareCode"),
 			)
 		case "Bean":
-			WriteToFile(
+			_ = WriteToFile(
 				ExecPath+"/scripts/jdPlantBeanShareCodes.js",
 				fmt.Sprintf(tpl, strings.Join(codes, ","), "PlantBeanShareCodes"),
 			)
 		case "JdFactory":
-			WriteToFile(
+			_ = WriteToFile(
 				ExecPath+"/scripts/jdFactoryShareCodes.js",
 				fmt.Sprintf(tpl, strings.Join(codes, ","), "shareCodes.js"),
 			)
 		case "DreamFactory":
-			WriteToFile(
+			_ = WriteToFile(
 				ExecPath+"/scripts/jdDreamFactoryShareCodes.js",
 				fmt.Sprintf(tpl, strings.Join(codes, ","), "shareCodes.js"),
 			)
 		case "Jxnc":
-			WriteToFile(
+			_ = WriteToFile(
 				ExecPath+"/scripts/jdJxncShareCodes.js",
 				fmt.Sprintf(tpl, strings.Join(codes, ","), "JxncShareCode.js"),
 			)
@@ -352,7 +352,9 @@ func WriteToFile(fileName string, content string) error {
 		n, _ := f.Seek(0, os.SEEK_END)
 		_, err = f.WriteAt([]byte(content), n)
 		// fmt.Println("write succeed!")
-		defer f.Close()
+		defer func(f *os.File) {
+			_ = f.Close()
+		}(f)
 	}
 	return err
 }

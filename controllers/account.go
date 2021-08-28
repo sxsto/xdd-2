@@ -26,8 +26,8 @@ func (c *AccountController) List() {
 			}
 		}
 	}
-	var len = len(cks)
-	var total = []int{len}
+	var length = len(cks)
+	var total = []int{length}
 	if page == 0 {
 		page = 1
 	}
@@ -36,11 +36,11 @@ func (c *AccountController) List() {
 	}
 	var from = (page - 1) * limit
 	var to = page * limit
-	if from >= len-1 {
-		from = len - 1
+	if from >= length-1 {
+		from = length - 1
 	}
-	if to >= len {
-		to = len
+	if to >= length {
+		to = length
 	}
 	if from < 0 {
 		from = 0
@@ -51,7 +51,7 @@ func (c *AccountController) List() {
 		"data":    data,
 		"message": total,
 	}
-	c.ServeJSON()
+	_ = c.ServeJSON()
 }
 
 func (c *AccountController) CreateOrUpdate() {

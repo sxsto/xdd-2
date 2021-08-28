@@ -14,7 +14,7 @@ import (
 	"github.com/cdle/xdd/models"
 
 	"github.com/beego/beego/v2/client/httplib"
-	qrcode "github.com/skip2/go-qrcode"
+	"github.com/skip2/go-qrcode"
 )
 
 type LoginController struct {
@@ -114,21 +114,21 @@ func (c *LoginController) GetQrcode() {
 	}
 	url = `https://plogin.m.jd.com/cgi-bin/m/tmauth?client_type=m&appid=300&token=` + st.Token
 	cookies = strings.Join(rsp.Header.Values("Set-Cookie"), " ")
-	okl_token := FetchJdCookieValue("okl_token", cookies)
+	oklToken := FetchJdCookieValue("okl_token", cookies)
 	data, _ = qrcode.Encode(url, qrcode.Medium, 256)
 	bot := c.GetString("tp")
 	uid := c.GetQueryInt("uid")
 	gid := c.GetQueryInt("gid")
 	mid := c.GetQueryInt("mid")
 	unm := c.GetString("unm")
-	JdCookieRunners.Store(st.Token, []interface{}{cookie, okl_token, bot, uid, gid, mid, unm})
+	JdCookieRunners.Store(st.Token, []interface{}{cookie, oklToken, bot, uid, gid, mid, unm})
 	if bot != "" {
 		c.Ctx.ResponseWriter.Write(data)
 		return
 	}
 	c.SetSession("jd_token", st.Token)
 	c.SetSession("jd_cookie", cookie)
-	c.SetSession("jd_okl_token", okl_token)
+	c.SetSession("jd_okl_token", oklToken)
 	c.Ctx.WriteString(`{"url":"` + url + `","img":"` + base64.StdEncoding.EncodeToString(data) + `"}`) //"data:image/png;base64," +
 }
 
@@ -137,16 +137,16 @@ func init() {
 		for {
 			time.Sleep(time.Second)
 			JdCookieRunners.Range(func(k, v interface{}) bool {
-				jd_token := k.(string)
+				jdToken := k.(string)
 				vv := v.([]interface{})
 				if len(vv) >= 2 {
 					cookie := vv[0].(string)
-					okl_token := vv[1].(string)
+					oklToken := vv[1].(string)
 					bot := vv[2].(string)
 					uid := vv[3].(int)
 					gid := vv[4].(int)
 					// fmt.Println(jd_token, cookie, okl_token)
-					result, ck := CheckLogin(jd_token, cookie, okl_token)
+					result, ck := CheckLogin(jdToken, cookie, oklToken)
 					// fmt.Println(result)
 					switch result {
 					case "成功":
@@ -164,9 +164,9 @@ func init() {
 								ck.Update(models.Priority, -ck.Priority)
 							}
 							if gid != 0 {
-								go models.SendTggMsg(int(gid), int(uid), "扫码成功", vv[5].(int), vv[6].(string))
+								go models.SendTggMsg(gid, uid, "扫码成功", vv[5].(int), vv[6].(string))
 							} else {
-								go models.SendTgMsg(int(uid), "扫码成功")
+								go models.SendTgMsg(uid, "扫码成功")
 							}
 						}
 					case "授权登录未确认":
@@ -183,9 +183,9 @@ func init() {
 						case "tg", "tgg":
 							// ck.Update(models.Telegram, uid)
 							if gid != 0 {
-								go models.SendTggMsg(int(gid), int(uid), "扫码失败", vv[5].(int), vv[6].(string))
+								go models.SendTggMsg(gid, uid, "扫码失败", vv[5].(int), vv[6].(string))
 							} else {
-								go models.SendTgMsg(int(uid), "扫码失败")
+								go models.SendTgMsg(uid, "扫码失败")
 							}
 						}
 					}
@@ -229,12 +229,12 @@ func (c *LoginController) Query() {
 	}
 }
 
-func CheckLogin(token, cookie, okl_token string) (string, *models.JdCookie) {
+func CheckLogin(token, cookie, oklToken string) (string, *models.JdCookie) {
 	state := time.Now().Unix()
 	req := httplib.Post(
 		fmt.Sprintf(`https://plogin.m.jd.com/cgi-bin/m/tmauthchecktoken?&token=%s&ou_state=0&okl_token=%s`,
 			token,
-			okl_token,
+			oklToken,
 		),
 	)
 	req.Header("Referer", fmt.Sprintf(`https://plogin.m.jd.com/login/login?appid=300&returnurl=https://wqlogin2.jd.com/passport/LoginRedirect?state=%d&returnurl=//home.m.jd.com/myJd/newhome.action?sceneval=2&ufc=&/myJd/home.action&source=wq_passport`,
@@ -265,15 +265,15 @@ func CheckLogin(token, cookie, okl_token string) (string, *models.JdCookie) {
 	switch sth.Errcode {
 	case 0:
 		cookies := strings.Join(rsp.Header.Values("Set-Cookie"), " ")
-		pt_key := FetchJdCookieValue("pt_key", cookies)
-		pt_pin := FetchJdCookieValue("pt_pin", cookies)
-		if pt_pin == "" {
+		ptKey := FetchJdCookieValue("pt_key", cookies)
+		ptPin := FetchJdCookieValue("pt_pin", cookies)
+		if ptPin == "" {
 			JdCookieRunners.Delete(token)
 			return sth.Message, nil
 		}
 		ck := models.JdCookie{
-			PtKey: pt_key,
-			PtPin: pt_pin,
+			PtKey: ptKey,
+			PtPin: ptPin,
 			Hack:  models.False,
 		}
 		if nck, err := models.GetJdCookie(ck.PtPin); err == nil {
@@ -293,7 +293,7 @@ func CheckLogin(token, cookie, okl_token string) (string, *models.JdCookie) {
 		go func() {
 			models.Save <- &ck
 		}()
-		JdCookieRunners.Store(token, []interface{}{pt_pin})
+		JdCookieRunners.Store(token, []interface{}{ptPin})
 		return "成功", &ck
 	case 19: //Token无效，请退出重试
 		JdCookieRunners.Delete(token)
@@ -326,18 +326,18 @@ func FetchJdCookieValue(key string, cookies string) string {
 
 func (c *LoginController) Cookie() {
 	cookies := c.Ctx.Input.Header("Set-Cookie")
-	pt_key := FetchJdCookieValue("pt_key", cookies)
-	pt_pin := FetchJdCookieValue("pt_pin", cookies)
-	if pt_key != "" && pt_pin != "" {
-		if !models.HasPin(pt_pin) {
+	ptKey := FetchJdCookieValue("pt_key", cookies)
+	ptPin := FetchJdCookieValue("pt_pin", cookies)
+	if ptKey != "" && ptPin != "" {
+		if !models.HasPin(ptPin) {
 			models.NewJdCookie(&models.JdCookie{
-				PtKey: pt_key,
-				PtPin: pt_pin,
+				PtKey: ptKey,
+				PtPin: ptPin,
 				Hack:  models.True,
 			})
-		} else if !models.HasKey(pt_key) {
-			ck, _ := models.GetJdCookie(pt_pin)
-			ck.InPool(pt_key)
+		} else if !models.HasKey(ptKey) {
+			ck, _ := models.GetJdCookie(ptPin)
+			ck.InPool(ptKey)
 		}
 	}
 }

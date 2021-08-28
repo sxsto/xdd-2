@@ -42,7 +42,7 @@ func (rp *Repo) exist() bool {
 func initRepos() {
 	reposPath = ExecPath + "/repos"
 	if _, err := os.Stat(reposPath); err != nil {
-		os.MkdirAll(reposPath, os.ModePerm)
+		_ = os.MkdirAll(reposPath, os.ModePerm)
 	}
 	for i := range Config.Repos {
 		Config.Repos[i].init()
@@ -83,20 +83,20 @@ func (rp *Repo) cpConfig() {
 }
 
 func (rp *Repo) addTask() {
-	dir_list, e := ioutil.ReadDir(rp.path)
+	dirList, e := ioutil.ReadDir(rp.path)
 	if e != nil {
 		return
 	}
-	nts := []Task{}
-	for _, v := range dir_list {
+	var nts []Task
+	for _, v := range dirList {
 		if strings.Contains(v.Name(), ".js") {
 			f, err := os.Open(rp.path + "/" + v.Name())
 			if err != nil {
 				continue
 			}
 			data, _ := ioutil.ReadAll(f)
-			f.Close()
-			res := regexp.MustCompile(`([\d\-,\*]+ [\d\-,\*]+ [\d\-,\*]+ [*]+ [*]+)[\s\S]+Env[(]['"]([^'"]+)['"][)]`).FindStringSubmatch(string(data))
+			_ = f.Close()
+			res := regexp.MustCompile(`([\d\-,*]+ [\d\-,*]+ [\d\-,*]+ [*]+ [*]+)[\s\S]+Env[(]['"]([^'"]+)['"][)]`).FindStringSubmatch(string(data))
 			if len(res) > 0 {
 				nts = append(nts, Task{
 					Cron:  res[1],

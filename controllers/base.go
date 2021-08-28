@@ -11,7 +11,7 @@ import (
 	"github.com/go-playground/locales/zh"
 	ut "github.com/go-playground/universal-translator"
 	"gopkg.in/go-playground/validator.v9"
-	zh_translations "gopkg.in/go-playground/validator.v9/translations/zh"
+	zhtranslations "gopkg.in/go-playground/validator.v9/translations/zh"
 )
 
 var validate *validator.Validate
@@ -23,7 +23,10 @@ func init() {
 	validate = validator.New()
 	var uni = ut.New(zhCh)
 	trans, _ = uni.GetTranslator("zh")
-	zh_translations.RegisterDefaultTranslations(validate, trans)
+	err := zhtranslations.RegisterDefaultTranslations(validate, trans)
+	if err != nil {
+		return
+	}
 }
 
 //BaseController 基础控制器

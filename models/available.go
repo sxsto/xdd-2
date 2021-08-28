@@ -123,7 +123,7 @@ func initCookie() {
 	l := len(cks)
 	for i := 0; i < l-1; i++ {
 		if cks[i].Available == True && !CookieOK(&cks[i]) {
-			if pt_key, err := cks[i].OutPool(); err == nil && pt_key != "" {
+			if ptKey, err := cks[i].OutPool(); err == nil && ptKey != "" {
 				i--
 			}
 		}

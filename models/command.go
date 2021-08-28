@@ -115,7 +115,7 @@ var codeSignals = []CodeSignal{
 			var u User
 			var ntime = time.Now()
 			var first = false
-			total := []int{}
+			var total []int
 			err := db.Where("number = ?", sender.UserID).First(&u).Error
 			if err != nil {
 				first = true
@@ -180,11 +180,12 @@ var codeSignals = []CodeSignal{
 		Command: []string{"升级", "更新", "update", "upgrade"},
 		Admin:   true,
 		Handle: func(sender *Sender) interface{} {
-			if err := Update(sender); err != nil {
-				return err.Error()
-			}
-			sender.Reply("小滴滴重启程序")
-			Daemon()
+			sender.Reply("小滴滴不支持此操作，请前往Dockerhub寻找合适的容器版本升级！")
+			//if err := Update(sender); err != nil {
+			//	return err.Error()
+			//}
+			//sender.Reply("小滴滴重启程序")
+			//Daemon()
 			return nil
 		},
 	},
@@ -237,7 +238,7 @@ var codeSignals = []CodeSignal{
 	{
 		Command: []string{"查询", "query"},
 		Handle: func(sender *Sender) interface{} {
-			sender.handleJdCookies(func(ck *JdCookie) {
+			_ = sender.handleJdCookies(func(ck *JdCookie) {
 				sender.Reply(ck.Query())
 			})
 			return nil
@@ -301,8 +302,8 @@ var codeSignals = []CodeSignal{
 		Handle: func(sender *Sender) interface{} {
 			ct := sender.JoinContens()
 			if ct == "" {
-				rt := []string{}
-				ws := []Wish{}
+				var rt []string
+				var ws []Wish
 				tb := db
 				if !sender.IsAdmin {
 					tb = tb.Where("user_number", sender.UserID)
@@ -400,7 +401,7 @@ var codeSignals = []CodeSignal{
 					return nil
 				}
 			}
-			envs := []Env{}
+			var envs []Env
 			if pins != "" {
 				envs = append(envs, Env{
 					Name:  "pins",
@@ -418,7 +419,7 @@ var codeSignals = []CodeSignal{
 			priority := Int(sender.Contents[0])
 			if len(sender.Contents) > 1 {
 				sender.Contents = sender.Contents[1:]
-				sender.handleJdCookies(func(ck *JdCookie) {
+				_ = sender.handleJdCookies(func(ck *JdCookie) {
 					ck.Update(Priority, priority)
 					sender.Reply(fmt.Sprintf("已设置账号%s(%s)的优先级为%d。", ck.PtPin, ck.Nickname, priority))
 				})
@@ -442,7 +443,7 @@ var codeSignals = []CodeSignal{
 		Command: []string{"环境变量", "environments", "envs"},
 		Admin:   true,
 		Handle: func(_ *Sender) interface{} {
-			rt := []string{}
+			var rt []string
 			envs := GetEnvs()
 			if len(envs) == 0 {
 				return "未设置任何环境变量"
@@ -549,7 +550,7 @@ var codeSignals = []CodeSignal{
 		Command: []string{"help", "助力"},
 		Admin:   true,
 		Handle: func(sender *Sender) interface{} {
-			sender.handleJdCookies(func(ck *JdCookie) {
+			_ = sender.handleJdCookies(func(ck *JdCookie) {
 				ck.Update(Help, True)
 				sender.Reply(fmt.Sprintf("已设置助力账号%s(%s)", ck.PtPin, ck.Nickname))
 			})
@@ -560,7 +561,7 @@ var codeSignals = []CodeSignal{
 		Command: []string{"tool", "工具人", "unhelp", "取消助力"},
 		Admin:   true,
 		Handle: func(sender *Sender) interface{} {
-			sender.handleJdCookies(func(ck *JdCookie) {
+			_ = sender.handleJdCookies(func(ck *JdCookie) {
 				ck.Update(Help, False)
 				sender.Reply(fmt.Sprintf("已设置取消助力账号%s(%s)", ck.PtPin, ck.Nickname))
 			})
@@ -571,7 +572,7 @@ var codeSignals = []CodeSignal{
 		Command: []string{"屏蔽", "hack"},
 		Admin:   true,
 		Handle: func(sender *Sender) interface{} {
-			sender.handleJdCookies(func(ck *JdCookie) {
+			_ = sender.handleJdCookies(func(ck *JdCookie) {
 				ck.Update(Hack, True)
 				sender.Reply(fmt.Sprintf("已设置屏蔽助力账号%s(%s)", ck.PtPin, ck.Nickname))
 			})
@@ -582,7 +583,7 @@ var codeSignals = []CodeSignal{
 		Command: []string{"取消屏蔽", "unhack"},
 		Admin:   true,
 		Handle: func(sender *Sender) interface{} {
-			sender.handleJdCookies(func(ck *JdCookie) {
+			_ = sender.handleJdCookies(func(ck *JdCookie) {
 				ck.Update(Hack, False)
 				sender.Reply(fmt.Sprintf("已设置取消屏蔽助力账号%s(%s)", ck.PtPin, ck.Nickname))
 			})
@@ -621,13 +622,13 @@ var codeSignals = []CodeSignal{
 				tx.Rollback()
 				return "余额不足。"
 			}
-			real := amount
+			realAmount := amount
 			if !sender.IsAdmin {
 				if amount <= cost {
 					tx.Rollback()
 					return fmt.Sprintf("转账失败，手续费需要%d个许愿币。", cost)
 				}
-				real = amount - cost
+				realAmount = amount - cost
 			} else {
 				cost = 0
 			}
@@ -643,20 +644,20 @@ var codeSignals = []CodeSignal{
 				return "转账失败"
 			}
 			if tx.Model(User{}).Where("number = ?", sender.ReplySenderUserID).Updates(map[string]interface{}{
-				"coin": gorm.Expr(fmt.Sprintf("coin + %d", real)),
+				"coin": gorm.Expr(fmt.Sprintf("coin + %d", realAmount)),
 			}).RowsAffected == 0 {
 				tx.Rollback()
 				return "转账失败"
 			}
 			tx.Commit()
-			return fmt.Sprintf("转账成功，你的余额%d，他的余额%d，手续费%d。", s.Coin-amount, r.Coin+real, cost)
+			return fmt.Sprintf("转账成功，你的余额%d，他的余额%d，手续费%d。", s.Coin-amount, r.Coin+realAmount, cost)
 		},
 	},
 	{
 		Command: []string{"献祭", "导出"},
 		Admin:   true,
 		Handle: func(sender *Sender) interface{} {
-			sender.handleJdCookies(func(ck *JdCookie) {
+			_ = sender.handleJdCookies(func(ck *JdCookie) {
 				sender.Reply(fmt.Sprintf("pt_key=%s;pt_pin=%s;", ck.PtKey, ck.PtPin))
 			})
 			return nil
@@ -667,7 +668,7 @@ var codeSignals = []CodeSignal{
 var mx = map[int]bool{}
 
 func LimitJdCookie(cks []JdCookie, a string) []JdCookie {
-	ncks := []JdCookie{}
+	var ncks []JdCookie
 	if s := strings.Split(a, "-"); len(s) == 2 {
 		for i := range cks {
 			if i+1 >= Int(s[0]) && i+1 <= Int(s[1]) {
@@ -697,7 +698,7 @@ func LimitJdCookie(cks []JdCookie, a string) []JdCookie {
 
 func ReturnCoin(sender *Sender) {
 	tx := db.Begin()
-	ws := []Wish{}
+	var ws []Wish
 	if err := tx.Where("status = 0 and user_number = ?", sender.UserID).Find(&ws).Error; err != nil {
 		tx.Rollback()
 		sender.Reply(err.Error())

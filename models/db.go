@@ -45,7 +45,7 @@ func initDB() {
 	)
 	keys = make(map[string]bool)
 	pins = make(map[string]bool)
-	jps := []JdCookiePool{}
+	var jps []JdCookiePool
 	db.Find(&jps)
 	for _, jp := range jps {
 		keys[jp.PtKey] = true
@@ -151,7 +151,7 @@ func Date() string {
 }
 
 func GetJdCookies(sbs ...func(sb *gorm.DB) *gorm.DB) []JdCookie {
-	cks := []JdCookie{}
+	var cks []JdCookie
 	tb := db
 	for _, sb := range sbs {
 		tb = sb(tb)

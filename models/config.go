@@ -51,7 +51,7 @@ var Config Yaml
 func initConfig() {
 	confDir := ExecPath + "/conf"
 	if _, err := os.Stat(confDir); err != nil {
-		os.MkdirAll(confDir, os.ModePerm)
+		_ = os.MkdirAll(confDir, os.ModePerm)
 	}
 	for _, name := range []string{"app.conf", "config.yaml", "reply.php"} {
 		f, err := os.OpenFile(ExecPath+"/conf/"+name, os.O_RDWR|os.O_CREATE, 0777)
@@ -63,10 +63,10 @@ func initConfig() {
 			logs.Info("下载配置%s", name)
 			r, err := httplib.Get(GhProxy + "https://raw.githubusercontent.com/cdle/xdd/main/conf/demo_" + name).Response()
 			if err == nil {
-				io.Copy(f, r.Body)
+				_, _ = io.Copy(f, r.Body)
 			}
 		}
-		f.Close()
+		_ = f.Close()
 	}
 	content, err := ioutil.ReadFile(ExecPath + "/conf/config.yaml")
 	if err != nil {

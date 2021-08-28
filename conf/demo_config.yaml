@@ -1,15 +1,15 @@
-mode: parallel
+mode: balance
 containers:
-  - address: http://192.168.31.233:5700
+  - address: http://localhost:5700
     username: admin
     password: admin
-    weigth:  
-    mode: parallel
+    weigth:
+    mode: balance
     limit: 9999
-theme:  
+theme: ./theme/kuduan.html
 static: ./static
-master: 
-database:  
+master:
+database:
 qywx_key:
 daily_push:
 resident:
@@ -19,8 +19,8 @@ telegram_user_id:
 qquid:
 qqgid:
 qbot_public_mode: true
-default_priority:
+default_priority: 1
 no_ghproxy: true
-daily_asset_push_cron:
+daily_asset_push_cron: 0 10 * * *
 repos:
   - git: https://github.com/shufflewzc/faker2.git

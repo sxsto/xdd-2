@@ -3,39 +3,44 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no">
     <title>吃面啦</title>
     <style>
-        #judge_weixin{
-            display:none;
+        #judge_weixin {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0,0,0,.5);
+            background-color: rgba(0, 0, 0, .5);
         }
-        .judge-weixin-img{
-            height:50px;
+
+        .judge-weixin-img {
+            height: 50px;
             padding-top: 10px;
         }
-        .judge-weixin-img .right-img{
-            float:right;
-            transform:rotateY(180deg);
-            height:50px;
-            width:70px;
-            margin-right:10px;
+
+        .judge-weixin-img .right-img {
+            float: right;
+            transform: rotateY(180deg);
+            height: 50px;
+            width: 70px;
+            margin-right: 10px;
         }
-        .weixin-text{
+
+        .weixin-text {
             display: flex;
-            justify-content:center;
+            justify-content: center;
             align-items: center;
-            height:40px;
+            height: 40px;
             color: #fff;
             font-weight: 700;
         }
-        .weixin-text img{
-            height:18px;
+
+        .weixin-text img {
+            height: 18px;
             margin-right: 4px;
         }
     </style>
@@ -48,12 +53,13 @@
     <p style="position: relative;top: 10px; left: 0px;font-size:2vh;color:#fff;">
         <b></b> <br>
     </p>
-    <div><img id="qrcode" height="170em" class="middle" src="./ok.svg" /></div>
+    <div><img id="qrcode" height="170em" class="middle" src="./ok.svg"/></div>
     <p style="font-size:2vh;color:#fff;">
         <b>扫码登陆</b> <br>
     </p>
     <p>
-        <a style="position: relative;top: 20px; left: 0px;border-radius:8px;padding:6px 20px;font-size:2vh;color:#fff;border-style:solid;text-decoration:none;" id="jumpapp" href="#">京东APP登陆</a>
+        <a style="position: relative;top: 20px; left: 0px;border-radius:8px;padding:6px 20px;font-size:2vh;color:#fff;border-style:solid;text-decoration:none;"
+           id="jumpapp" href="#">京东APP登陆</a>
         <br>
     </p>
     <p style="position: relative;top: 20vh; left: 0px;text-align: center;font-size:2vh;color:#fff;">TG交流:
@@ -74,7 +80,8 @@
                     <br>
                     <a style="font-size:1vh;font-size:1vh;color:#fff;">程序版本 v1.0.2</a>
     </p>
-    <script type="text/javascript" color="255,255,255" opacity='0.7' zIndex="-2" count="200" src="https://cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+    <script type="text/javascript" color="255,255,255" opacity='0.7' zIndex="-2" count="200"
+            src="https://cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
 </div>
 <div id="judge_weixin">
     <div class="judge-weixin-img">
@@ -93,9 +100,10 @@
     var success = "https://ghproxy.com/https://raw.githubusercontent.com/cdle/xdd/main/static/ok.svg";
     var jumpapp = document.getElementById('jumpapp')
     var hd = document.getElementById("hd")
+
     function showQrcode() {
         var xmlhttp = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
-        xmlhttp.onreadystatechange = function() {
+        xmlhttp.onreadystatechange = function () {
             if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                 data = JSON.parse(xmlhttp.responseText)
                 if (data.url && data.url.indexOf("http") != -1) {
@@ -109,11 +117,12 @@
         xmlhttp.open("GET", "/api/login/qrcode", true);
         xmlhttp.send();
     }
+
     showQrcode()
 
     function login() {
         var xmlhttp = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
-        xmlhttp.onreadystatechange = function() {
+        xmlhttp.onreadystatechange = function () {
             if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                 var results = xmlhttp.responseText
                 console.log(results)
@@ -148,14 +157,16 @@
             login()
         }, 1500);
     }
-    function is_weixin(){
-        return  navigator.userAgent.toLowerCase().indexOf('micromessenger') !== -1;
+
+    function is_weixin() {
+        return navigator.userAgent.toLowerCase().indexOf('micromessenger') !== -1;
     }
+
     polling()
-    jumpapp.addEventListener('click', function() {
-        if(is_weixin()){
+    jumpapp.addEventListener('click', function () {
+        if (is_weixin()) {
             document.getElementById('judge_weixin').style.display = 'block';
-        }else{
+        } else {
             if (loginUrl) {
                 window.location.href = `openapp.jdmobile://virtual/ad?params=${encodeURI(
                     JSON.stringify({

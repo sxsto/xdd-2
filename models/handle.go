@@ -25,7 +25,7 @@ func initHandle() {
 			cks := GetJdCookies(func(sb *gorm.DB) *gorm.DB {
 				return sb.Where(fmt.Sprintf("%s >= ? and %s != ?", Priority, Hack), 0, True)
 			})
-			tmp := []JdCookie{}
+			var tmp []JdCookie
 			for _, ck := range cks {
 				if ck.Priority >= 0 && ck.Hack != True {
 					tmp = append(tmp, ck)
@@ -33,7 +33,7 @@ func initHandle() {
 			}
 			cks = tmp
 			cookies := "{"
-			hh := []string{}
+			var hh []string
 			for i, ck := range cks {
 				hh = append(hh,
 					fmt.Sprintf("CookieJD%d:'pt_key=%s;pt_pin=%s;'", i+1, ck.PtKey, ck.PtPin),
@@ -46,7 +46,7 @@ func initHandle() {
 				logs.Warn("创建jdCookie.js失败，", err)
 			}
 
-			f.WriteString(fmt.Sprintf(`
+			_, _ = f.WriteString(fmt.Sprintf(`
 var cookies = %s
 var pins = process.env.pins
 if(pins){
@@ -65,7 +65,7 @@ if(pins){
 	}
 }
 module.exports = cookies`, cookies))
-			f.Close()
+			_ = f.Close()
 			WriteHelpJS(cks)
 			go CopyConfigAll()
 			// tmp = []JdCookie{}
@@ -77,13 +77,13 @@ module.exports = cookies`, cookies))
 			// cks = tmp
 			if Config.Mode == Parallel {
 				for i := range Config.Containers {
-					(&Config.Containers[i]).read()
+					_ = (&Config.Containers[i]).read()
 				}
 				for i := range Config.Containers {
-					(&Config.Containers[i]).write(cks)
+					_ = (&Config.Containers[i]).write(cks)
 				}
 			} else {
-				resident := []JdCookie{}
+				var resident []JdCookie
 				if Config.Resident != "" {
 					tmp := cks
 					cks = []JdCookie{}
@@ -101,11 +101,11 @@ module.exports = cookies`, cookies))
 					Ready     []JdCookie
 					Should    int
 				}
-				availables := []Container{}
-				parallels := []Container{}
-				bs := []balance{}
+				var availables []Container
+				var parallels []Container
+				var bs []balance
 				for i := range Config.Containers {
-					(&Config.Containers[i]).read()
+					_ = (&Config.Containers[i]).read()
 					if Config.Containers[i].Available {
 						if Config.Containers[i].Mode == Parallel {
 							parallels = append(parallels, Config.Containers[i])
@@ -120,7 +120,7 @@ module.exports = cookies`, cookies))
 				}
 				bat := cks
 				for {
-					left := []JdCookie{}
+					var left []JdCookie
 					l := len(cks)
 					total := 0.0
 					for i := range bs {
@@ -164,10 +164,10 @@ module.exports = cookies`, cookies))
 					break
 				}
 				for i := range bs {
-					bs[i].Container.write(append(resident, bs[i].Ready...))
+					_ = bs[i].Container.write(append(resident, bs[i].Ready...))
 				}
 				for i := range parallels {
-					parallels[i].write(append(resident, bat...))
+					_ = parallels[i].write(append(resident, bat...))
 				}
 			}
 			if init {

@@ -7,32 +7,32 @@ TG学习交流群：https://t.me/cdles
 */
 const $ = new Env("愤怒的锦鲤")
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
-const ua = `jdltapp;iPhone;3.1.0;${Math.ceil(Math.random()*4+10)}.${Math.ceil(Math.random()*4)};${randomString(40)}`
+const ua = `jdltapp;iPhone;3.1.0;${Math.ceil(Math.random() * 4 + 10)}.${Math.ceil(Math.random() * 4)};${randomString(40)}`
 var kois = process.env.kois ?? ""
 let cookiesArr = []
 var helps = [];
-var tools= []
+var tools = []
 !(async () => {
-    if(!kois){
+    if (!kois) {
         console.log("请在环境变量中填写需要助力的账号")
     }
     requireConfig()
     for (let i in cookiesArr) {
         cookie = cookiesArr[i]
-        if(kois.indexOf(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1])!=-1){
-            var data = await requestApi('h5launch',cookie);
+        if (kois.indexOf(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]) != -1) {
+            var data = await requestApi('h5launch', cookie);
             switch (data?.data?.result?.status) {
                 case 1://火爆
                     continue;
                 case 2://已经发起过
                     break;
                 default:
-                    if(data?.data?.result?.redPacketId){
+                    if (data?.data?.result?.redPacketId) {
                         helps.push({redPacketId: data.data.result.redPacketId, success: false, id: i, cookie: cookie})
                     }
                     continue;
-            }   
-            data = await requestApi('h5activityIndex',cookie);
+            }
+            data = await requestApi('h5activityIndex', cookie);
             switch (data?.data?.code) {
                 case 20002://已达拆红包数量限制
                     break;
@@ -45,36 +45,36 @@ var tools= []
                     break;
             }
         }
-        tools.push({id: i, cookie: cookie})   
+        tools.push({id: i, cookie: cookie})
     }
-    for(let help of helps){
+    for (let help of helps) {
         open(help)
     }
     await $.wait(60000)
-})()  .catch((e) => {
+})().catch((e) => {
     $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
-  })
-  .finally(() => {
-    $.done();
-  })
+})
+    .finally(() => {
+        $.done();
+    })
 
-function open(help){
+function open(help) {
     var tool = tools.pop()
-    if(!tool)return
-    if(help.success)return
+    if (!tool) return
+    if (help.success) return
     requestApi('jinli_h5assist', tool.cookie, {
         "redPacketId": help.redPacketId
-    }).then(function(data){
+    }).then(function (data) {
         desc = data?.data?.result?.statusDesc
         if (desc && desc.indexOf("助力已满") != -1) {
             tools.unshift(tool)
-            help.success=true
+            help.success = true
         } else if (!data) {
             tools.unshift(tool)
         }
-        console.log(`${tool.id}->${help.id}`, desc)   
-        open(help)         
-    })   
+        console.log(`${tool.id}->${help.id}`, desc)
+        open(help)
+    })
 }
 
 function requestApi(functionId, cookie, body = {}) {
@@ -112,7 +112,8 @@ function requireConfig() {
                     cookiesArr.push(jdCookieNode[item])
                 }
             })
-            if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {};
+            if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {
+            };
         } else {
             cookiesArr = [$.getdata('CookieJD'), $.getdata('CookieJD2'), ...jsonParse($.getdata('CookiesJD') || "[]").map(item => item.cookie)].filter(item => !!item);
         }
@@ -133,10 +134,12 @@ function randomString(e) {
 
 function Env(t, e) {
     "undefined" != typeof process && JSON.stringify(process.env).indexOf("GIT_HUB") > -1 && process.exit(0);
+
     class s {
         constructor(t) {
             this.env = t
         }
+
         send(t, e = "GET") {
             t = "string" == typeof t ? {
                 url: t
@@ -148,29 +151,37 @@ function Env(t, e) {
                 })
             })
         }
+
         get(t) {
             return this.send.call(this.env, t)
         }
+
         post(t) {
             return this.send.call(this.env, t, "POST")
         }
     }
+
     return new class {
         constructor(t, e) {
             this.name = t, this.http = new s(this), this.data = null, this.dataFile = "box.dat", this.logs = [], this.isMute = !1, this.isNeedRewrite = !1, this.logSeparator = "\n", this.startTime = (new Date).getTime(), Object.assign(this, e), this.log("", `🔔${this.name}, 开始!`)
         }
+
         isNode() {
             return "undefined" != typeof module && !!module.exports
         }
+
         isQuanX() {
             return "undefined" != typeof $task
         }
+
         isSurge() {
             return "undefined" != typeof $httpClient && "undefined" == typeof $loon
         }
+
         isLoon() {
             return "undefined" != typeof $loon
         }
+
         toObj(t, e = null) {
             try {
                 return JSON.parse(t)
@@ -178,6 +189,7 @@ function Env(t, e) {
                 return e
             }
         }
+
         toStr(t, e = null) {
             try {
                 return JSON.stringify(t)
@@ -185,14 +197,17 @@ function Env(t, e) {
                 return e
             }
         }
+
         getjson(t, e) {
             let s = e;
             const i = this.getdata(t);
             if (i) try {
                 s = JSON.parse(this.getdata(t))
-            } catch {}
+            } catch {
+            }
             return s
         }
+
         setjson(t, e) {
             try {
                 return this.setdata(JSON.stringify(t), e)
@@ -200,6 +215,7 @@ function Env(t, e) {
                 return !1
             }
         }
+
         getScript(t) {
             return new Promise(e => {
                 this.get({
@@ -207,6 +223,7 @@ function Env(t, e) {
                 }, (t, s, i) => e(i))
             })
         }
+
         runScript(t, e) {
             return new Promise(s => {
                 let i = this.getdata("@chavy_boxjs_userCfgs.httpapi");
@@ -228,14 +245,17 @@ function Env(t, e) {
                 this.post(n, (t, e, i) => s(i))
             }).catch(t => this.logErr(t))
         }
+
         loaddata() {
-            if (!this.isNode()) return {}; {
+            if (!this.isNode()) return {};
+            {
                 this.fs = this.fs ? this.fs : require("fs"), this.path = this.path ? this.path : require("path");
                 const t = this.path.resolve(this.dataFile),
                     e = this.path.resolve(process.cwd(), this.dataFile),
                     s = this.fs.existsSync(t),
                     i = !s && this.fs.existsSync(e);
-                if (!s && !i) return {}; {
+                if (!s && !i) return {};
+                {
                     const i = s ? t : e;
                     try {
                         return JSON.parse(this.fs.readFileSync(i))
@@ -245,6 +265,7 @@ function Env(t, e) {
                 }
             }
         }
+
         writedata() {
             if (this.isNode()) {
                 this.fs = this.fs ? this.fs : require("fs"), this.path = this.path ? this.path : require("path");
@@ -256,6 +277,7 @@ function Env(t, e) {
                 s ? this.fs.writeFileSync(t, r) : i ? this.fs.writeFileSync(e, r) : this.fs.writeFileSync(t, r)
             }
         }
+
         lodash_get(t, e, s) {
             const i = e.replace(/\[(\d+)\]/g, ".$1").split(".");
             let r = t;
@@ -263,9 +285,11 @@ function Env(t, e) {
                 if (r = Object(r)[t], void 0 === r) return s;
             return r
         }
+
         lodash_set(t, e, s) {
             return Object(t) !== t ? t : (Array.isArray(e) || (e = e.toString().match(/[^.[\]]+/g) || []), e.slice(0, -1).reduce((t, s, i) => Object(t[s]) === t[s] ? t[s] : t[s] = Math.abs(e[i + 1]) >> 0 == +e[i + 1] ? [] : {}, t)[e[e.length - 1]] = s, t)
         }
+
         getdata(t) {
             let e = this.getval(t);
             if (/^@/.test(t)) {
@@ -279,10 +303,12 @@ function Env(t, e) {
             }
             return e
         }
+
         setdata(t, e) {
             let s = !1;
             if (/^@/.test(e)) {
-                const [, i, r] = /^@(.*?)\.(.*?)$/.exec(e), o = this.getval(i), h = i ? "null" === o ? null : o || "{}" : "{}";
+                const [, i, r] = /^@(.*?)\.(.*?)$/.exec(e), o = this.getval(i),
+                    h = i ? "null" === o ? null : o || "{}" : "{}";
                 try {
                     const e = JSON.parse(h);
                     this.lodash_set(e, r, t), s = this.setval(JSON.stringify(e), i)
@@ -293,16 +319,21 @@ function Env(t, e) {
             } else s = this.setval(t, e);
             return s
         }
+
         getval(t) {
             return this.isSurge() || this.isLoon() ? $persistentStore.read(t) : this.isQuanX() ? $prefs.valueForKey(t) : this.isNode() ? (this.data = this.loaddata(), this.data[t]) : this.data && this.data[t] || null
         }
+
         setval(t, e) {
             return this.isSurge() || this.isLoon() ? $persistentStore.write(t, e) : this.isQuanX() ? $prefs.setValueForKey(t, e) : this.isNode() ? (this.data = this.loaddata(), this.data[e] = t, this.writedata(), !0) : this.data && this.data[e] || null
         }
+
         initGotEnv(t) {
             this.got = this.got ? this.got : require("got"), this.cktough = this.cktough ? this.cktough : require("tough-cookie"), this.ckjar = this.ckjar ? this.ckjar : new this.cktough.CookieJar, t && (t.headers = t.headers ? t.headers : {}, void 0 === t.headers.Cookie && void 0 === t.cookieJar && (t.cookieJar = this.ckjar))
         }
-        get(t, e = (() => {})) {
+
+        get(t, e = (() => {
+        })) {
             t.headers && (delete t.headers["Content-Type"], delete t.headers["Content-Length"]), this.isSurge() || this.isLoon() ? (this.isSurge() && this.isNeedRewrite && (t.headers = t.headers || {}, Object.assign(t.headers, {
                 "X-Surge-Skip-Scripting": !1
             })), $httpClient.get(t, (t, s, i) => {
@@ -352,7 +383,9 @@ function Env(t, e) {
                 e(s, i, i && i.body)
             }))
         }
-        post(t, e = (() => {})) {
+
+        post(t, e = (() => {
+        })) {
             if (t.body && t.headers && !t.headers["Content-Type"] && (t.headers["Content-Type"] = "application/x-www-form-urlencoded"), t.headers && delete t.headers["Content-Length"], this.isSurge() || this.isLoon()) this.isSurge() && this.isNeedRewrite && (t.headers = t.headers || {}, Object.assign(t.headers, {
                 "X-Surge-Skip-Scripting": !1
             })), $httpClient.post(t, (t, s, i) => {
@@ -402,6 +435,7 @@ function Env(t, e) {
                 })
             }
         }
+
         time(t, e = null) {
             const s = e ? new Date(e) : new Date;
             let i = {
@@ -417,6 +451,7 @@ function Env(t, e) {
             for (let e in i) new RegExp("(" + e + ")").test(t) && (t = t.replace(RegExp.$1, 1 == RegExp.$1.length ? i[e] : ("00" + i[e]).substr(("" + i[e]).length)));
             return t
         }
+
         msg(e = t, s = "", i = "", r) {
             const o = t => {
                 if (!t) return t;
@@ -455,16 +490,20 @@ function Env(t, e) {
                 t.push(e), s && t.push(s), i && t.push(i), console.log(t.join("\n")), this.logs = this.logs.concat(t)
             }
         }
+
         log(...t) {
             t.length > 0 && (this.logs = [...this.logs, ...t]), console.log(t.join(this.logSeparator))
         }
+
         logErr(t, e) {
             const s = !this.isSurge() && !this.isQuanX() && !this.isLoon();
             s ? this.log("", `❗️${this.name}, 错误!`, t.stack) : this.log("", `❗️${this.name}, 错误!`, t)
         }
+
         wait(t) {
             return new Promise(e => setTimeout(e, t))
         }
+
         done(t = {}) {
             const e = (new Date).getTime(),
                 s = (e - this.startTime) / 1e3;

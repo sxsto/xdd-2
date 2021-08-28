@@ -20,7 +20,7 @@ func UnExportEnv(env *Env) {
 }
 
 func GetEnvs() []Env {
-	envs := []Env{}
+	var envs []Env
 	db.Find(&envs)
 	return envs
 }

@@ -26,7 +26,7 @@ func Daemon() {
 	if err != nil {
 		panic(err)
 	}
-	logs.Info("小滴滴运行于deamon模式")
+	logs.Info("小滴滴后台启动成功...")
 	os.Exit(0)
 }
 
@@ -36,7 +36,7 @@ func killp() {
 		if len(pids) == 0 {
 			return
 		} else {
-			exec.Command("sh", "-c", "kill -9 "+strings.Join(pids, " ")).Output()
+			_, _ = exec.Command("sh", "-c", "kill -9 "+strings.Join(pids, " ")).Output()
 		}
 	} else {
 		return
@@ -45,7 +45,7 @@ func killp() {
 
 func ppid() ([]string, error) {
 	pid := fmt.Sprint(os.Getpid())
-	pids := []string{}
+	var pids []string
 	rtn, err := exec.Command("sh", "-c", "pidof "+pname).Output()
 	if err != nil {
 		return pids, err
