@@ -62,7 +62,7 @@ func runTask(task *Task, sender *Sender) string {
 		slice := strings.Split(task.Path, "/")
 		len := len(slice)
 		if len == 0 {
-			logs.Warn("取法识别的文件名")
+			logs.Warn("无法识别的文件名")
 			return ""
 		}
 		task.Name = slice[len-1]
