@@ -182,17 +182,17 @@ func (ck *JdCookie) Update(column string, value interface{}) {
 	}
 }
 
-func (ck *JdCookie) InPool(ptKey string) error {
+func (ck *JdCookie) InPool(pt_key string) error {
 	if ck.ID != 0 {
 		date := Date()
 		tx := db.Begin()
 		jp := &JdCookiePool{}
-		if tx.Where(fmt.Sprintf("%s = '%s' and %s = '%s'", PtPin, ck.PtPin, PtKey, ptKey)).First(jp).Error == nil {
+		if tx.Where(fmt.Sprintf("%s = '%s' and %s = '%s'", PtPin, ck.PtPin, PtKey, pt_key)).First(jp).Error == nil {
 			return tx.Rollback().Error
 		}
 		if err := tx.Create(&JdCookiePool{
 			PtPin:    ck.PtPin,
-			PtKey:    ptKey,
+			PtKey:    pt_key,
 			CreateAt: date,
 		}).Error; err != nil {
 			tx.Rollback()
@@ -200,7 +200,7 @@ func (ck *JdCookie) InPool(ptKey string) error {
 		}
 		tx.Model(ck).Updates(map[string]interface{}{
 			Available: True,
-			PtKey:     ptKey,
+			PtKey:     pt_key,
 		})
 		return tx.Commit().Error
 	}
