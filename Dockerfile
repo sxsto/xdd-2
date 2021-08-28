@@ -14,10 +14,7 @@ RUN set -eux; \
 
 FROM whyour/qinglong:latest
 
-ARG QL_VERSION
-
 LABEL maintainer="gcdd1993 <gcwm99@gmail.com>"
-LABEL qinglong_version="${QL_VERSION}"
 
 RUN mkdir -p /ql/xdd/conf
 
