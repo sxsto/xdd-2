@@ -6,14 +6,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/beego/beego/v2/client/httplib"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web/context"
 
 	"github.com/beego/beego/v2/server/web"
-	"github.com/cdle/xdd/controllers"
-	"github.com/cdle/xdd/models"
-	"github.com/cdle/xdd/qbot"
+	"github.com/gcdd1993/xdd/controllers"
+	"github.com/gcdd1993/xdd/models"
+	"github.com/gcdd1993/xdd/qbot"
 )
 
 var theme = ""
@@ -27,21 +26,14 @@ func main() {
 	})
 	web.Get("/", func(ctx *context.Context) {
 		if models.Config.Theme == "" {
-			models.Config.Theme = models.GhProxy + "https://raw.githubusercontent.com/cdle/xdd/main/theme/bidong.html"
+			models.Config.Theme = "./theme/kuduan.html"
 		}
 		if theme != "" {
 			ctx.WriteString(theme)
 			return
 		}
 		if strings.Contains(models.Config.Theme, "http") {
-			logs.Info("下载最新主题")
-			s, _ := httplib.Get(models.Config.Theme).String()
-			if s != "" {
-				theme = s
-				ctx.WriteString(s)
-				return
-			}
-			logs.Warn("主题下载失败，使用默认主题")
+			logs.Info("暂时不支持（以后也不会）远程主题，请下载主题后放置于小滴滴运行目录<theme>下")
 		}
 		f, err := os.Open(models.Config.Theme)
 		if err == nil {
@@ -67,7 +59,7 @@ func main() {
 	web.BConfig.WebConfig.AutoRender = false
 	web.BConfig.CopyRequestBody = true
 	web.BConfig.WebConfig.Session.SessionOn = true
-	web.BConfig.WebConfig.Session.SessionGCMaxLifetime = 3600
+	web.BConfig.WebConfig.Session.SessionGCMaxLifetime = 60 * 60 * 24
 	web.BConfig.WebConfig.Session.SessionName = models.AppName
 	go func() {
 		time.Sleep(time.Second * 4)

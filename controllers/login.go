@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/beego/beego/v2/core/logs"
-	"github.com/cdle/xdd/models"
+	"github.com/gcdd1993/xdd/models"
 
 	"github.com/beego/beego/v2/client/httplib"
 	"github.com/skip2/go-qrcode"
