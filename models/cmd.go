@@ -10,7 +10,7 @@ import (
 )
 
 func cmd(str string, sender *Sender) string {
-	cmd := exec.Command("sh", "-c", str)
+	cmd := exec.Command("bash", "-c", str)
 	stdout, err := cmd.StdoutPipe()
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
