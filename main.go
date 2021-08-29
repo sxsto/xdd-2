@@ -23,7 +23,7 @@ func main() {
 	})
 	web.Get("/", func(ctx *context.Context) {
 		if models.Config.Theme == "" {
-			models.Config.Theme = "./theme/kuduan.html"
+			models.Config.Theme = "theme/kuduan.html"
 		}
 		if theme != "" {
 			ctx.WriteString(theme)
