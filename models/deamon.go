@@ -36,7 +36,7 @@ func killp() {
 		if len(pids) == 0 {
 			return
 		} else {
-			_, _ = exec.Command("sh", "-c", "kill -9 "+strings.Join(pids, " ")).Output()
+			_, _ = exec.Command("bash", "-c", "kill -9 "+strings.Join(pids, " ")).Output()
 		}
 	} else {
 		return
@@ -46,7 +46,7 @@ func killp() {
 func ppid() ([]string, error) {
 	pid := fmt.Sprint(os.Getpid())
 	var pids []string
-	rtn, err := exec.Command("sh", "-c", "pidof "+pname).Output()
+	rtn, err := exec.Command("bash", "-c", "pidof "+pname).Output()
 	if err != nil {
 		return pids, err
 	}
